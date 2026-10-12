@@ -18,14 +18,11 @@
             padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;
             margin-bottom: 20px; text-align: center; line-height: 1.3;
         }
-        
         .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; }
-        
         .card {
             background: #1e293b; border: 1px solid #334155; padding: 18px;
             border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
-        
         label { display: block; font-size: 0.85rem; font-weight: bold; color: #38bdf8; margin-bottom: 5px; }
         input, select, textarea {
             width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px;
@@ -33,17 +30,14 @@
             outline: none;
         }
         textarea { resize: vertical; min-height: 80px; }
-        
         button.send-btn {
             width: 100%; padding: 12px; background: #22c55e; color: #fff;
             border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
         }
         button.send-btn:active { background: #16a34a; }
-
         .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .feed-header h2 { font-size: 1.2rem; color: #f8fafc; }
         .count-tag { background: #38bdf8; color: #0f172a; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
-
         .homework-list { display: flex; flex-direction: column; gap: 12px; }
         .hw-item {
             background: #0f172a; border-left: 4px solid #38bdf8; padding: 12px;
@@ -55,21 +49,19 @@
         .hw-text { font-size: 0.9rem; line-height: 1.4; color: #e2e8f0; white-space: pre-wrap; margin-bottom: 8px; }
         .hw-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #64748b; border-top: 1px solid #1e293b; padding-top: 6px; }
         .hw-due { color: #f43f5e; font-weight: bold; }
-
         .delete-btn {
-            background: #ef4444; color: white; border: none; padding: 4px 10px;
-            border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
-            margin-top: 6px; display: inline-block;
+            background: #ef4444; color: white; border: none; padding: 6px 12px;
+            border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer;
+            margin-top: 8px; display: block; width: 100%; text-align: center;
         }
-
         .admin-box {
-            margin-top: 20px; text-align: center;
+            margin-top: 10px; text-align: center; padding: 10px;
+            background: #1e293b; border: 1px dashed #334155; border-radius: 10px;
         }
         .admin-btn {
-            background: #334155; color: #94a3b8; border: none; padding: 6px 12px;
-            border-radius: 8px; font-size: 0.8rem; cursor: pointer;
+            background: #334155; color: #38bdf8; border: 1px solid #38bdf8; padding: 8px 16px;
+            border-radius: 8px; font-size: 0.85rem; font-weight: bold; cursor: pointer; width: 100%;
         }
-
         footer { margin-top: 20px; font-size: 0.75rem; color: #64748b; text-align: center; line-height: 1.4; }
     </style>
 </head>
@@ -79,7 +71,6 @@
     <div class="author-badge">👑 Yapımcı: MEHMET EMİN TEMİR NO: 480<br>💻 Geliştirici: hostafa8-sudo</div>
 
     <div class="container">
-        <!-- ÖDEV EKLEME FORMU -->
         <div class="card">
             <label for="studentName">👤 Adın Soyadın:</label>
             <input type="text" id="studentName" placeholder="Örn: Emin" required>
@@ -106,20 +97,16 @@
             <button class="send-btn" onclick="addHomework()">🚀 Ödevi Paylaş</button>
         </div>
 
-        <!-- PAYLAŞILAN ÖDEVLER LİSTESİ -->
         <div>
             <div class="feed-header">
                 <h2>📌 Aktif Ödevler</h2>
                 <span class="count-tag" id="hwCount">0 Ödev</span>
             </div>
-            <div class="homework-list" id="homeworkFeed">
-                <!-- Ödevler buraya gelecek -->
-            </div>
+            <div class="homework-list" id="homeworkFeed"></div>
         </div>
 
-        <!-- ADMİN GİRİŞ ALANI -->
         <div class="admin-box">
-            <button class="admin-btn" id="adminToggleBtn" onclick="toggleAdmin()">🔑 Yönetici Girişi</button>
+            <button class="admin-btn" id="adminToggleBtn" onclick="toggleAdmin()">🔑 Yönetici Girişi (Admin Modu)</button>
         </div>
     </div>
 
@@ -134,32 +121,25 @@
 
         function cleanExpiredHomeworks() {
             const now = new Date().getTime();
-            homeworks = homeworks.filter(hw => {
-                const dueTime = new Date(hw.dueIso).getTime();
-                return dueTime > now;
-            });
+            homeworks = homeworks.filter(hw => new Date(hw.dueIso).getTime() > now);
             localStorage.setItem("emin_odevler", JSON.stringify(homeworks));
         }
 
         function renderHomeworks() {
             cleanExpiredHomeworks();
-
             const feed = document.getElementById("homeworkFeed");
             feed.innerHTML = "";
             document.getElementById("hwCount").innerText = homeworks.length + " Ödev";
 
             if(homeworks.length === 0) {
-                feed.innerHTML = `<div style="text-align:center; color:#64748b; padding:20px;">Henüz aktif ödev yok veya süresi dolan ödevler temizlendi!</div>`;
+                feed.innerHTML = `<div style="text-align:center; color:#64748b; padding:20px;">Henüz aktif ödev yok veya süresi dolanlar temizlendi!</div>`;
                 return;
             }
 
             homeworks.forEach((hw, index) => {
                 const item = document.createElement("div");
                 item.className = "hw-item";
-                
-                let deleteButtonHtml = isAdmin 
-                    ? `<button class="delete-btn" onclick="deleteHomework(${index})">🗑️ Bu Ödevi Sil</button>` 
-                    : ``;
+                let deleteButtonHtml = isAdmin ? `<button class="delete-btn" onclick="deleteHomework(${index})">🗑️ Bu Ödevi Sil (Admin)</button>` : ``;
 
                 item.innerHTML = `
                     <div class="hw-meta">
@@ -190,20 +170,10 @@
 
             const now = new Date();
             const timeStr = now.toLocaleDateString("tr-TR") + " " + now.toLocaleTimeString("tr-TR", {hour: '2-digit', minute:'2-digit'});
-
             const dueDateObj = new Date(dueVal);
             const dueFormatted = dueDateObj.toLocaleDateString("tr-TR") + " " + dueDateObj.toLocaleTimeString("tr-TR", {hour: '2-digit', minute:'2-digit'});
 
-            const newHw = { 
-                author, 
-                subject, 
-                detail, 
-                time: timeStr,
-                dueIso: dueVal,
-                dueFormatted: dueFormatted
-            };
-
-            homeworks.unshift(newHw);
+            homeworks.unshift({ author, subject, detail, time: timeStr, dueIso: dueVal, dueFormatted });
             localStorage.setItem("emin_odevler", JSON.stringify(homeworks));
 
             document.getElementById("hwDetail").value = "";
@@ -213,22 +183,24 @@
 
         function toggleAdmin() {
             if(!isAdmin) {
-                const pass = prompt("Yönetici Şifresini Girin:");
+                const pass = prompt("Yönetici Şifresini Girin (Şifre: 1234):");
                 if(pass === "1234") {
                     isAdmin = true;
-                    alert("Yönetici modu aktif! İstediğiniz ödevi silebilirsiniz.");
-                    document.getElementById("adminToggleBtn").innerText = "🔓 Yönetici Çıkışı Yap";
-                    document.getElementById("adminToggleBtn").style.background = "#ef4444";
-                    document.getElementById("adminToggleBtn").style.color = "#fff";
-                } else if(pass !== null) {
-                    alert("Hatalı Şifre!");
-                }
+                    alert("Yönetici modu aktif!");
+                    const btn = document.getElementById("adminToggleBtn");
+                    btn.innerText = "🔓 Yönetici Çıkışı Yap";
+                    btn.style.background = "#ef4444";
+                    btn.style.color = "#fff";
+                    btn.style.borderColor = "#b91c1c";
+                } else if(pass !== null) { alert("Hatalı Şifre!"); }
             } else {
                 isAdmin = false;
                 alert("Yönetici modundan çıkıldı.");
-                document.getElementById("adminToggleBtn").innerText = "🔑 Yönetici Girişi";
-                document.getElementById("adminToggleBtn").style.background = "#334155";
-                document.getElementById("adminToggleBtn").style.color = "#94a3b8";
+                const btn = document.getElementById("adminToggleBtn");
+                btn.innerText = "🔑 Yönetici Girişi (Admin Modu)";
+                btn.style.background = "#334155";
+                btn.style.color = "#38bdf8";
+                btn.style.borderColor = "#38bdf8";
             }
             renderHomeworks();
         }
