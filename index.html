@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ödev Paylaşım Portalı - Emin & Arkadaşlar</title>
+    <title>Ödev Paylaşım Portalı - Mehmet Emin Temir</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -15,8 +15,8 @@
         h1 { color: #38bdf8; text-align: center; margin-bottom: 4px; font-size: 1.8rem; }
         .author-badge {
             background: #1e293b; border: 1px solid #38bdf8; color: #38bdf8;
-            padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;
-            margin-bottom: 20px; text-align: center;
+            padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;
+            margin-bottom: 20px; text-align: center; line-height: 1.3;
         }
         
         .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; }
@@ -32,7 +32,7 @@
             border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 0.95rem;
             outline: none;
         }
-        textarea { resize: vertical; min-height: 90px; }
+        textarea { resize: vertical; min-height: 80px; }
         
         button.send-btn {
             width: 100%; padding: 12px; background: #22c55e; color: #fff;
@@ -52,16 +52,17 @@
         .hw-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .hw-author { font-weight: bold; color: #38bdf8; font-size: 0.95rem; }
         .hw-subject { background: #334155; color: #facc15; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
-        .hw-text { font-size: 0.9rem; line-height: 1.4; color: #e2e8f0; white-space: pre-wrap; }
-        .hw-time { font-size: 0.7rem; color: #64748b; margin-top: 8px; text-align: right; }
+        .hw-text { font-size: 0.9rem; line-height: 1.4; color: #e2e8f0; white-space: pre-wrap; margin-bottom: 8px; }
+        .hw-footer { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; border-top: 1px solid #1e293b; padding-top: 6px; }
+        .hw-due { color: #f43f5e; font-weight: bold; }
 
-        footer { margin-top: 30px; font-size: 0.75rem; color: #64748b; text-align: center; }
+        footer { margin-top: 30px; font-size: 0.75rem; color: #64748b; text-align: center; line-height: 1.4; }
     </style>
 </head>
 <body>
 
     <h1>📚 Ödev Paylaşım Portalı</h1>
-    <div class="author-badge">👑 Geliştirici: hostafa8-sudo & Emin</div>
+    <div class="author-badge">👑 Yapımcı: MEHMET EMİN TEMİR NO: 480<br>💻 Geliştirici: hostafa8-sudo</div>
 
     <div class="container">
         <!-- ÖDEV EKLEME FORMU -->
@@ -83,7 +84,10 @@
             </select>
 
             <label for="hwDetail">📝 Ödev Detayı / Açıklama:</label>
-            <textarea id="hwDetail" placeholder="Hangi sayfalar çözülecek, ödevin konusu veya notun nedir?"></textarea>
+            <textarea id="hwDetail" placeholder="Hangi sayfalar çözülecek, ödevin konusu nedir?"></textarea>
+
+            <label for="dueDate">⏳ Son Teslim Tarihi & Saati:</label>
+            <input type="datetime-local" id="dueDate" required>
 
             <button class="send-btn" onclick="addHomework()">🚀 Ödevi Paylaş</button>
         </div>
@@ -91,33 +95,45 @@
         <!-- PAYLAŞILAN ÖDEVLER LİSTESİ -->
         <div>
             <div class="feed-header">
-                <h2>📌 Paylaşılan Ödevler</h2>
+                <h2>📌 Aktif Ödevler</h2>
                 <span class="count-tag" id="hwCount">0 Ödev</span>
             </div>
             <div class="homework-list" id="homeworkFeed">
-                <!-- Ödevler buraya dinamik gelecek -->
+                <!-- Ödevler buraya gelecek -->
             </div>
         </div>
     </div>
 
     <footer>
-        © 2026 Geliştirici: hostafa8-sudo
+        © 2026 MEHMET EMİN TEMİR NO: 480<br>
+        Altyapı & Geliştirici: hostafa8-sudo
     </footer>
 
     <script>
         let homeworks = JSON.parse(localStorage.getItem("emin_odevler")) || [];
 
+        function cleanExpiredHomeworks() {
+            const now = new Date().getTime();
+            homeworks = homeworks.filter(hw => {
+                const dueTime = new Date(hw.dueIso).getTime();
+                return dueTime > now;
+            });
+            localStorage.setItem("emin_odevler", JSON.stringify(homeworks));
+        }
+
         function renderHomeworks() {
+            cleanExpiredHomeworks();
+
             const feed = document.getElementById("homeworkFeed");
             feed.innerHTML = "";
             document.getElementById("hwCount").innerText = homeworks.length + " Ödev";
 
             if(homeworks.length === 0) {
-                feed.innerHTML = `<div style="text-align:center; color:#64748b; padding:20px;">Henüz hiç ödev paylaşılmadı. İlk ödevi sen ekle!</div>`;
+                feed.innerHTML = `<div style="text-align:center; color:#64748b; padding:20px;">Henüz aktif ödev yok veya süresi dolan ödevler otomatik temizlendi!</div>`;
                 return;
             }
 
-            homeworks.forEach((hw, index) => {
+            homeworks.forEach((hw) => {
                 const item = document.createElement("div");
                 item.className = "hw-item";
                 item.innerHTML = `
@@ -126,7 +142,10 @@
                         <span class="hw-subject">📚 ${hw.subject}</span>
                     </div>
                     <div class="hw-text">${hw.detail}</div>
-                    <div class="hw-time">🕒 ${hw.time}</div>
+                    <div class="hw-footer">
+                        <span>🕒 Eklenme: ${hw.time}</span>
+                        <span class="hw-due">⏰ Son: ${hw.dueFormatted}</span>
+                    </div>
                 `;
                 feed.appendChild(item);
             });
@@ -136,20 +155,33 @@
             const author = document.getElementById("studentName").value.trim();
             const subject = document.getElementById("subjectSelect").value;
             const detail = document.getElementById("hwDetail").value.trim();
+            const dueVal = document.getElementById("dueDate").value;
 
-            if(!author || !detail) {
-                alert("Lütfen adını ve ödev açıklamasını yaz!");
+            if(!author || !detail || !dueVal) {
+                alert("Lütfen tüm alanları ve son teslim tarihini doldurun!");
                 return;
             }
 
             const now = new Date();
-            const timeStr = now.toLocaleDateString("tr-TR") + " - " + now.toLocaleTimeString("tr-TR", {hour: '2-digit', minute:'2-digit'});
+            const timeStr = now.toLocaleDateString("tr-TR") + " " + now.toLocaleTimeString("tr-TR", {hour: '2-digit', minute:'2-digit'});
 
-            const newHw = { author, subject, detail, time: timeStr };
+            const dueDateObj = new Date(dueVal);
+            const dueFormatted = dueDateObj.toLocaleDateString("tr-TR") + " " + dueDateObj.toLocaleTimeString("tr-TR", {hour: '2-digit', minute:'2-digit'});
+
+            const newHw = { 
+                author, 
+                subject, 
+                detail, 
+                time: timeStr,
+                dueIso: dueVal,
+                dueFormatted: dueFormatted
+            };
+
             homeworks.unshift(newHw);
             localStorage.setItem("emin_odevler", JSON.stringify(homeworks));
 
             document.getElementById("hwDetail").value = "";
+            document.getElementById("dueDate").value = "";
             renderHomeworks();
         }
 
