@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ödev Paylaşım Portalı - Emin & Arkadaşlar</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #0f172a; color: #f8fafc;
+            font-family: "Segoe UI", Roboto, sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; padding: 15px;
+        }
+        h1 { color: #38bdf8; text-align: center; margin-bottom: 4px; font-size: 1.8rem; }
+        .author-badge {
+            background: #1e293b; border: 1px solid #38bdf8; color: #38bdf8;
+            padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;
+            margin-bottom: 20px; text-align: center;
+        }
+        
+        .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; }
+        
+        .card {
+            background: #1e293b; border: 1px solid #334155; padding: 18px;
+            border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        
+        label { display: block; font-size: 0.85rem; font-weight: bold; color: #38bdf8; margin-bottom: 5px; }
+        input, select, textarea {
+            width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px;
+            border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 0.95rem;
+            outline: none;
+        }
+        textarea { resize: vertical; min-height: 90px; }
+        
+        button.send-btn {
+            width: 100%; padding: 12px; background: #22c55e; color: #fff;
+            border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
+        }
+        button.send-btn:active { background: #16a34a; }
+
+        .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .feed-header h2 { font-size: 1.2rem; color: #f8fafc; }
+        .count-tag { background: #38bdf8; color: #0f172a; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+
+        .homework-list { display: flex; flex-direction: column; gap: 12px; }
+        .hw-item {
+            background: #0f172a; border-left: 4px solid #38bdf8; padding: 12px;
+            border-radius: 8px; position: relative;
+        }
+        .hw-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .hw-author { font-weight: bold; color: #38bdf8; font-size: 0.95rem; }
+        .hw-subject { background: #334155; color: #facc15; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
+        .hw-text { font-size: 0.9rem; line-height: 1.4; color: #e2e8f0; white-space: pre-wrap; }
+        .hw-time { font-size: 0.7rem; color: #64748b; margin-top: 8px; text-align: right; }
+
+        footer { margin-top: 30px; font-size: 0.75rem; color: #64748b; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <h1>📚 Ödev Paylaşım Portalı</h1>
+    <div class="author-badge">👑 Geliştirici: hostafa8-sudo & Emin</div>
+
+    <div class="container">
+        <!-- ÖDEV EKLEME FORMU -->
+        <div class="card">
+            <label for="studentName">👤 Adın Soyadın:</label>
+            <input type="text" id="studentName" placeholder="Örn: Emin" required>
+
+            <label for="subjectSelect">📖 Ders Seçin:</label>
+            <select id="subjectSelect">
+                <option value="Matematik">Matematik</option>
+                <option value="Fizik">Fizik</option>
+                <option value="Kimya">Kimya</option>
+                <option value="Biyoloji">Biyoloji</option>
+                <option value="Türkçe / Edebiyat">Türkçe / Edebiyat</option>
+                <option value="Tarih">Tarih</option>
+                <option value="İngilizce">İngilizce</option>
+                <option value="Coğrafya">Coğrafya</option>
+                <option value="Diğer">Diğer Dersler</option>
+            </select>
+
+            <label for="hwDetail">📝 Ödev Detayı / Açıklama:</label>
+            <textarea id="hwDetail" placeholder="Hangi sayfalar çözülecek, ödevin konusu veya notun nedir?"></textarea>
+
+            <button class="send-btn" onclick="addHomework()">🚀 Ödevi Paylaş</button>
+        </div>
+
+        <!-- PAYLAŞILAN ÖDEVLER LİSTESİ -->
+        <div>
+            <div class="feed-header">
+                <h2>📌 Paylaşılan Ödevler</h2>
+                <span class="count-tag" id="hwCount">0 Ödev</span>
+            </div>
+            <div class="homework-list" id="homeworkFeed">
+                <!-- Ödevler buraya dinamik gelecek -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 Geliştirici: hostafa8-sudo
+    </footer>
+
+    <script>
+        let homeworks = JSON.parse(localStorage.getItem("emin_odevler")) || [];
+
+        function renderHomeworks() {
+            const feed = document.getElementById("homeworkFeed");
+            feed.innerHTML = "";
+            document.getElementById("hwCount").innerText = homeworks.length + " Ödev";
+
+            if(homeworks.length === 0) {
+                feed.innerHTML = `<div style="text-align:center; color:#64748b; padding:20px;">Henüz hiç ödev paylaşılmadı. İlk ödevi sen ekle!</div>`;
+                return;
+            }
+
+            homeworks.forEach((hw, index) => {
+                const item = document.createElement("div");
+                item.className = "hw-item";
+                item.innerHTML = `
+                    <div class="hw-meta">
+                        <span class="hw-author">👤 ${hw.author}</span>
+                        <span class="hw-subject">📚 ${hw.subject}</span>
+                    </div>
+                    <div class="hw-text">${hw.detail}</div>
+                    <div class="hw-time">🕒 ${hw.time}</div>
+                `;
+                feed.appendChild(item);
+            });
+        }
+
+        function addHomework() {
+            const author = document.getElementById("studentName").value.trim();
+            const subject = document.getElementById("subjectSelect").value;
+            const detail = document.getElementById("hwDetail").value.trim();
+
+            if(!author || !detail) {
+                alert("Lütfen adını ve ödev açıklamasını yaz!");
+                return;
+            }
+
+            const now = new Date();
+            const timeStr = now.toLocaleDateString("tr-TR") + " - " + now.toLocaleTimeString("tr-TR", {hour: '2-digit', minute:'2-digit'});
+
+            const newHw = { author, subject, detail, time: timeStr };
+            homeworks.unshift(newHw);
+            localStorage.setItem("emin_odevler", JSON.stringify(homeworks));
+
+            document.getElementById("hwDetail").value = "";
+            renderHomeworks();
+        }
+
+        renderHomeworks();
+    </script>
+</body>
+</html>
+
